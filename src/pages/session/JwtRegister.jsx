@@ -272,7 +272,7 @@ const Register = () => {
                   to={paths.auth.jwt.register}
                   className="btn btn-link ff-bold text-white"
                 >
-                  Register Now
+                  Register
                 </Link>
               </p>
             </div>
