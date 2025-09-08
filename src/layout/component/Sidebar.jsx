@@ -17,7 +17,7 @@ const Sidebar = ({ isVisible, toggleSidebar, headerHeight }) => {
       className={`navbar sidenav overflow-hidden ${
         isVisible ? "" : "collapsed"
       }`}
-      style={{ height: `calc((100vh - 20px) - ${headerHeight}px)` }}
+      
     >
       <div className="scrollbar flex-fill">
         <ul className="nav flex-column">
