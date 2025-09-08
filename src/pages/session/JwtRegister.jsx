@@ -1,181 +1,107 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TbEye, TbEyeClosed } from "react-icons/tb";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
-import IntlTelInput from "intl-tel-input/react";
 import { toast } from "react-toastify";
 
 import useAuth from "../../hooks/useAuth";
-import { useBoolean } from "../../hooks/use-boolean";
-import PhoneInput from "../../components/phone-input";
 import { paths } from "../../routes/paths";
-import useTheme from "../../hooks/useTheme";
-import axiosInstance, { endpoints } from "../../utils/axios";
 import { useRouter } from "../../routes/hooks/use-router";
 import { useCloseAllModals } from "../../hooks/use-close-modals";
 
-const Register = () => {
-  const { headerHeight, headerRef } = useTheme();
-  const router = useRouter();
-
-  const closeAllModals = useCloseAllModals();
-
-  const showPasswordEmail = useBoolean();
-  const showPasswordPhone = useBoolean();
-  const stayLoggedIn = useBoolean();
-  const popoverVisible = useBoolean();
-
-  // Telegram
-  const otpStatus = useBoolean();
-  const verifyOtpStatus = useBoolean();
-  const [phone, setPhone] = useState(null);
-  const [params, setParams] = useState({
-    phone_number: "",
-    phone_code_hash: "",
-    user_id: "",
+// ----------------- Schema -----------------
+const registerSchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters long"),
+    email: z.string().email("Invalid email address"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
   });
-  const [country, setCountry] = useState("us");
 
-  const { login, getUserData, dispatch, isAuthenticated } = useAuth();
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
+const defaultValues = {
+  name: "",
+  email: "",
+};
 
-  const loginSchema = z
-    .object({
-      email: z
-        .string()
-        .email("Invalid email address")
-        .optional()
-        .or(z.literal("")), // Allows empty string
+// ----------------- FileUploadBox -----------------
+const FileUploadBox = ({ label }) => {
+  const fileInputRef = useRef(null);
 
-      phone: z
-        .string()
-        .regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number format")
-        .optional()
-        .or(z.literal("")), // Allows empty string
-
-      password: z
-        .string()
-        .min(6, "Password must be at least 6 characters long"),
-    })
-    .refine((data) => data.email || data.phone, {
-      message: "Either email or phone number is required",
-      path: ["email"], // Show error on email
-    })
-    .refine((data) => data.email || data.phone, {
-      message: "Either email or phone number is required",
-      path: ["phone"], // Show error on phone
-    });
-
-  const defaultValues = {
-    email: "",
-    password: "",
-    phone: "",
+  const handleClick = () => {
+    fileInputRef.current.click();
   };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      console.log(`${label} dropped:`, files);
+    }
+  };
+
+  return (
+    <div className="text-center">
+      <div
+        className="upload-box mb-20"
+        onClick={handleClick}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={handleDrop}
+      >
+        <input type="file" ref={fileInputRef} style={{ display: "none" }} />
+        <div className="upload-content">
+          <img
+            src="/assets/images/file-upload.svg" // if inside public/images
+            alt="Upload"
+            className="upload-icon mb-2"
+          />
+          <p>
+            Drag & drop files here or{" "}
+            <span className="choose-files" onClick={handleClick}>
+              Choose files
+            </span>{" "}
+            to upload
+          </p>
+        </div>
+      </div>
+      <small className="text-white ff-regular f-16">{label}</small>
+    </div>
+  );
+};
+
+// ----------------- Component -----------------
+const Register = () => {
+  const router = useRouter();
+  const closeAllModals = useCloseAllModals();
+  const { register: registerUser, isAuthenticated } = useAuth();
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setValue,
-    watch,
   } = useForm({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(registerSchema),
     defaultValues,
   });
 
   const onSubmit = async (data) => {
     try {
-      await login(data);
+      // Call your auth/register API
+      await registerUser(data);
+      toast.success("Registration successful!");
+      closeAllModals();
+      router.push(paths.dashboard.root);
     } catch (error) {
-      console.log(error);
-      alert("Invalid credentials");
-    }
-  };
-
-  useEffect(() => {
-    const getIp = async () => {
-      try {
-        const resp = await fetch("https://api.country.is/");
-        const data = await resp.json();
-        setCountry(data?.country?.toLowerCase()); // Ensure lowercase country code
-      } catch (error) {
-        console.error("Error fetching IP:", error);
-      }
-    };
-
-    getIp();
-  }, []);
-
-  const handleSendOtp = async () => {
-    otpStatus.onTrue();
-    try {
-      if (!phone) {
-        toast.error("Please enter a valid phone number");
-        otpStatus.onFalse();
-        return;
-      }
-      const response = await axiosInstance.post(endpoints.auth.telegram, {
-        phone_number: phone,
-      });
-      const data = response.data?.data;
-      toast.success(response.data?.message);
-      if (response.data.status === 200) {
-        otpStatus.onFalse();
-        setParams({
-          phone_number: data?.phone_number,
-          phone_code_hash: data?.phone_code_hash,
-          user_id: data?.user_id,
-        });
-      }
-    } catch (error) {
-      toast.error(error.message);
-      otpStatus.onFalse();
       console.error(error);
+      toast.error(error.message || "Registration failed");
     }
   };
-
-  const handleVerifyOtp = async (code) => {
-    verifyOtpStatus.onTrue();
-    if (!code) {
-      toast.error("Please enter a valid OTP");
-      verifyOtpStatus.onFalse();
-      return;
-    }
-    try {
-      const response = await axiosInstance.post(endpoints.auth.telegramVerify, {
-        phone_number: params.phone_number,
-        code: code,
-        phone_code_hash: params.phone_code_hash,
-        user_id: params.user_id,
-      });
-      const data = response.data;
-      const token = data.access;
-      toast.success(data?.message);
-      if (data.status === 200) {
-        await dispatch({ type: "LOGIN", payload: { data: data } });
-        console.log(token);
-        getUserData(token);
-        closeAllModals();
-        router.push(paths.dashboard.root);
-        verifyOtpStatus.onFalse();
-      }
-    } catch (error) {
-      toast.error(error.message);
-      verifyOtpStatus.onFalse();
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    setValue("password", password);
-  }, [password, setValue]);
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace(paths.dashboard.root); // use replace to avoid going back to landing
+      router.replace(paths.dashboard.root);
     }
   }, [isAuthenticated, router]);
 
@@ -186,95 +112,104 @@ const Register = () => {
       </Helmet>
 
       <main className="d-flex align-items-center justify-content-center vh-100 bg-main">
-        <div className="form-login w-100 m-auto">
+        <div className="form-register w-100 m-auto">
           <form
             className="card rounded-24"
-            id="msform"
+            id="register-form"
             onSubmit={handleSubmit(onSubmit)}
           >
             <h1 className="form-title ff-bold text-white text-center mb-20">
-              Login
+              Basic Details
             </h1>
             <p className="form-head mb-40 text-center">
-              Please enter your details to login
+              Please enter few quick details to get started
             </p>
-            <div className="mb-30">
-              <label className="form-label" style={{ textTransform: "none" }}>
-                Email or Username
-              </label>
-              <input
-                name="email"
-                type="email"
-                className="form-control"
-                placeholder="Enter your email or username"
-                required
-                value={watch("email")}
-                onChange={(e) => setValue("email", e.target.value)}
-              />
-              {errors.email && (
-                <p className="error small mt-1">{errors.email.message}</p>
-              )}
-            </div>
 
-            <div className="mb-12">
-              <label className="form-label">Password</label>
-              <div className="password-field position-relative">
-                <input
-                  name="password"
-                  className="form-control"
-                  type={showPasswordEmail.value ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <span
-                  className="cursor-pointer toggleEye"
-                  onClick={showPasswordEmail.onToggle}
-                >
-                  {showPasswordEmail.value ? <TbEye /> : <TbEyeClosed />}
-                </span>
-              </div>
-              {errors.password && (
-                <p className="error small mt-1">{errors.password.message}</p>
-              )}
-            </div>
-
-            <div className="mb-5 d-flex justify-content-between align-items-center">
-              <div>
-                <input
-                  className="form-check-input"
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                />
-                <label className="ms-2 text-white" htmlFor="remember-me">
-                  Remember me
-                </label>
+            <div className="row">
+              <div className="col-md-6">
+                {/* Name */}
+                <div className="mb-30">
+                  <label className="form-label">Full Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Enter your name"
+                    {...register("name")}
+                  />
+                  {errors.name && (
+                    <p className="error small mt-1">{errors.name.message}</p>
+                  )}
+                </div>
               </div>
 
-              <Link to={paths.auth.jwt.forgotPassword} className="btn btn-link">
-                Forgot password?
-              </Link>
+              {/* Email */}
+              <div className="col-md-6">
+                <div className="mb-30">
+                  <label className="form-label">Email</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    placeholder="Enter your email"
+                    {...register("email")}
+                  />
+                  {errors.email && (
+                    <p className="error small mt-1">{errors.email.message}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Phone */}
+              <div className="col-md-6">
+                <div className="mb-30">
+                  <label className="form-label">Phone</label>
+                  <div className="input-group phone-input">
+                    <span className="input-group-text">+91</span>
+                    <input
+                      type="tel"
+                      className="form-control"
+                      placeholder="Enter your mobile number"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* City & State */}
+              <div className="col-md-6">
+                <div className="mb-30">
+                  <label className="form-label">City & State</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Enter your City & State"
+                  />
+                </div>
+              </div>
             </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary btn-login w-100 mb-20"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Logging..." : "Log In"}
-            </button>
+            {/* File Upload Boxes */}
+            <h6 className="ff-medium mb-12 text-white">
+              Upload Your Documents
+            </h6>
+            <div className="row mb-50">
+              <div className="col-md-4">
+                <FileUploadBox label="Upload Aadhaar Card*" />
+              </div>
+              <div className="col-md-4">
+                <FileUploadBox label="Upload Pan Card*" />
+              </div>
+              <div className="col-md-4">
+                <FileUploadBox label="Other Document*" />
+              </div>
+            </div>
 
-            <div>
-              <p className="text-center f-16 ff-regular">
-                Don't have an account?
-                <Link
-                  to={paths.auth.jwt.register}
-                  className="btn btn-link ff-bold text-white"
-                >
-                  Register
-                </Link>
-              </p>
+            <div className="d-flex align-items-center justify-content-center">
+              <button
+                type="submit"
+                className="btn btn-primary btn-login w-25"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Submiting..." : "Submit"}
+              </button>
             </div>
           </form>
         </div>
