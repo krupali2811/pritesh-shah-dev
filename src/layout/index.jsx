@@ -7,7 +7,7 @@ import Header from "./component/Header";
 import Sidebar from "./component/Sidebar";
 
 const DashboardLayout = () => {
-  const { headerHeight} = useTheme();
+  const { headerHeight } = useTheme();
   const [isCollapsed, setIsCollapsed] = useState(window.innerWidth <= 1199);
   const location = useLocation();
 
@@ -29,7 +29,6 @@ const DashboardLayout = () => {
 
   return (
     <main className={`main ${isMarketPage ? "sidebar-hidden" : ""}`}>
-      <Header toggleSidebar={toggleSidebar} />
       {!isMarketPage && (
         <Sidebar
           isVisible={!isCollapsed}
@@ -42,6 +41,7 @@ const DashboardLayout = () => {
         className={`main-content ${isCollapsed ? "collapsed" : ""}`}
         style={{ minHeight: `calc((100vh - 20px) - ${headerHeight}px)` }}
       >
+        <Header toggleSidebar={toggleSidebar} />
         <Outlet />
       </div>
     </main>

@@ -86,14 +86,28 @@ const Login = () => {
     defaultValues,
   });
 
-  const onSubmit = async (data) => {
-    try {
-      await login(data);
-    } catch (error) {
-      console.log(error);
-      alert("Invalid credentials");
-    }
+  // const onSubmit = async (data) => {
+  //   try {
+  //     await login(data);
+  //   } catch (error) {
+  //     console.log(error);
+  //     alert("Invalid credentials");
+  //   }
+  // };
+  
+  const onSubmit = (data) => {
+    console.log("Form submitted:", data);
+    toast.success("Login Successful!");
+
+    // simulate user being authenticated (so AuthGuard won't kick you back)
+    dispatch({
+      type: "LOGIN",
+      payload: { data: { access: "dummyToken", user: { email: data.email } } },
+    });
+
+    router.push(paths.dashboard.root);
   };
+
 
   useEffect(() => {
     const getIp = async () => {
@@ -109,75 +123,75 @@ const Login = () => {
     getIp();
   }, []);
 
-  const handleSendOtp = async () => {
-    otpStatus.onTrue();
-    try {
-      if (!phone) {
-        toast.error("Please enter a valid phone number");
-        otpStatus.onFalse();
-        return;
-      }
-      const response = await axiosInstance.post(endpoints.auth.telegram, {
-        phone_number: phone,
-      });
-      const data = response.data?.data;
-      toast.success(response.data?.message);
-      if (response.data.status === 200) {
-        otpStatus.onFalse();
-        setParams({
-          phone_number: data?.phone_number,
-          phone_code_hash: data?.phone_code_hash,
-          user_id: data?.user_id,
-        });
-      }
-    } catch (error) {
-      toast.error(error.message);
-      otpStatus.onFalse();
-      console.error(error);
-    }
-  };
+  // const handleSendOtp = async () => {
+  //   otpStatus.onTrue();
+  //   try {
+  //     if (!phone) {
+  //       toast.error("Please enter a valid phone number");
+  //       otpStatus.onFalse();
+  //       return;
+  //     }
+  //     const response = await axiosInstance.post(endpoints.auth.telegram, {
+  //       phone_number: phone,
+  //     });
+  //     const data = response.data?.data;
+  //     toast.success(response.data?.message);
+  //     if (response.data.status === 200) {
+  //       otpStatus.onFalse();
+  //       setParams({
+  //         phone_number: data?.phone_number,
+  //         phone_code_hash: data?.phone_code_hash,
+  //         user_id: data?.user_id,
+  //       });
+  //     }
+  //   } catch (error) {
+  //     toast.error(error.message);
+  //     otpStatus.onFalse();
+  //     console.error(error);
+  //   }
+  // };
 
-  const handleVerifyOtp = async (code) => {
-    verifyOtpStatus.onTrue();
-    if (!code) {
-      toast.error("Please enter a valid OTP");
-      verifyOtpStatus.onFalse();
-      return;
-    }
-    try {
-      const response = await axiosInstance.post(endpoints.auth.telegramVerify, {
-        phone_number: params.phone_number,
-        code: code,
-        phone_code_hash: params.phone_code_hash,
-        user_id: params.user_id,
-      });
-      const data = response.data;
-      const token = data.access;
-      toast.success(data?.message);
-      if (data.status === 200) {
-        await dispatch({ type: "LOGIN", payload: { data: data } });
-        console.log(token);
-        getUserData(token);
-        closeAllModals();
-        router.push(paths.dashboard.root);
-        verifyOtpStatus.onFalse();
-      }
-    } catch (error) {
-      toast.error(error.message);
-      verifyOtpStatus.onFalse();
-      console.error(error);
-    }
-  };
+  // const handleVerifyOtp = async (code) => {
+  //   verifyOtpStatus.onTrue();
+  //   if (!code) {
+  //     toast.error("Please enter a valid OTP");
+  //     verifyOtpStatus.onFalse();
+  //     return;
+  //   }
+  //   try {
+  //     const response = await axiosInstance.post(endpoints.auth.telegramVerify, {
+  //       phone_number: params.phone_number,
+  //       code: code,
+  //       phone_code_hash: params.phone_code_hash,
+  //       user_id: params.user_id,
+  //     });
+  //     const data = response.data;
+  //     const token = data.access;
+  //     toast.success(data?.message);
+  //     if (data.status === 200) {
+  //       await dispatch({ type: "LOGIN", payload: { data: data } });
+  //       console.log(token);
+  //       getUserData(token);
+  //       closeAllModals();
+  //       router.push(paths.dashboard.root);
+  //       verifyOtpStatus.onFalse();
+  //     }
+  //   } catch (error) {
+  //     toast.error(error.message);
+  //     verifyOtpStatus.onFalse();
+  //     console.error(error);
+  //   }
+  // };
 
   useEffect(() => {
     setValue("password", password);
   }, [password, setValue]);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.replace(paths.dashboard.root); // use replace to avoid going back to landing
-    }
-  }, [isAuthenticated, router]);
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     router.replace(paths.dashboard.root); // use replace to avoid going back to landing
+  //   }
+  // }, [isAuthenticated, router]);
 
   return (
     <>

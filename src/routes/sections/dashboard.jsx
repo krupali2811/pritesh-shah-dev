@@ -12,7 +12,6 @@ import { RoleBasedGuard } from "../../components/auth/role-based-guard.jsx";
 
 const Home = Loadable(lazy(() => import("../../pages/dashboard/Home")));
 
-
 //Users
 const Users = Loadable(
   lazy(() => import("../../pages/dashboard/users/UserList.jsx"))
@@ -26,11 +25,9 @@ const UsersKYC = Loadable(
   lazy(() => import("../../pages/dashboard/userKYC/UsersKYC.jsx"))
 );
 
-
 const PermissionDeniedPage = Loadable(
   lazy(() => import("../../pages/permission-denied-page.jsx"))
 );
-
 
 // ----------------------------------------------------------------------
 
@@ -52,8 +49,8 @@ const RoleBasedRoutes = () => {
         <AuthGuard>{layoutContent}</AuthGuard>
       ),
       children: [
-        { element: <Home />, index: true },        
-        
+        { element: <Home />, index: true },
+
         {
           path: "users",
           children: [
@@ -65,57 +62,12 @@ const RoleBasedRoutes = () => {
               ),
               index: true,
             },
-            // {
-            //   path: "new",
-            //   element: (
-            //     <RoleBasedGuard currentPermission="user_management" hasContent>
-            //       <AddUsers />
-            //     </RoleBasedGuard>
-            //   ),
-            // },
-            {
-              path: ":id/edit",
-              element: (
-                <RoleBasedGuard currentPermission="admin" hasContent>
-                  <EditUsers />
-                </RoleBasedGuard>
-              ),
-            },
-          ],
-        },
-        {
-          path: "user-management",
-          children: [
-            {
-              element: (
-                <RoleBasedGuard currentPermission="admin" hasContent>
-                  <Users />
-                </RoleBasedGuard>
-              ),
-              index: true,
-            },
-            // {
-            //   path: "new",
-            //   element: (
-            //     <RoleBasedGuard currentPermission="user_management" hasContent>
-            //       <AddUsers />
-            //     </RoleBasedGuard>
-            //   ),
-            // },
-            {
-              path: ":id/edit",
-              element: (
-                <RoleBasedGuard currentPermission="admin" hasContent>
-                  <EditUsers />
-                </RoleBasedGuard>
-              ),
-            },
 
             {
-              path: "user-kyc",
+              path: ":id/edit",
               element: (
                 <RoleBasedGuard currentPermission="admin" hasContent>
-                  <UsersKYC />
+                  <EditUsers />
                 </RoleBasedGuard>
               ),
             },

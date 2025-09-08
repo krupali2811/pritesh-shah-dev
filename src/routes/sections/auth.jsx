@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Outlet } from "react-router-dom";
 
-// import { SplashScreen } from "../../components/loading-screen/splash-screen";
+import { SplashScreen } from "../../components/loading-screen/splash-screen";
 // import AuthSplitLayout from "../../components/layout/auth-split";
 
 // ----------------------------------------------------------------------
@@ -39,9 +39,9 @@ export const authRoutes = [
     path: "auth",
     element: (
       // <AuthSplitLayout>
-      // <Suspense fallback={<SplashScreen />}>
-      <Outlet />
-      // </Suspense>
+      <Suspense fallback={<SplashScreen />}>
+        <Outlet />
+      </Suspense>
       // </AuthSplitLayout>
     ),
     children: [authJwt],

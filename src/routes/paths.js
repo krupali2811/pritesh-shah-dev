@@ -26,19 +26,24 @@ export const paths = {
   // DASHBOARD
   dashboard: {
     root: ROOTS.DASHBOARD,
+
+    overview: `${ROOTS.DASHBOARD}/overview`,
+    clientList: `${ROOTS.DASHBOARD}/clients`,
+    kycManagement: `${ROOTS.DASHBOARD}/kyc-management`,
+    portfolios: `${ROOTS.DASHBOARD}/portfolios`,
+    analytics: `${ROOTS.DASHBOARD}/analytics`,
+    reports: `${ROOTS.DASHBOARD}/reports`,
+    messages: `${ROOTS.DASHBOARD}/messages`,
+    compliance: `${ROOTS.DASHBOARD}/compliance`,
+
     userManagement: {
       root: `${ROOTS.DASHBOARD}/user-management`,
-      users: {
-        root: `${ROOTS.DASHBOARD}/user-management/users`,
-        new: `${ROOTS.DASHBOARD}/user-management/users/new`,
-        // details: (id) => `${ROOTS.DASHBOARD}/users/${id}`,
-        edit: (id) => `${ROOTS.DASHBOARD}/user-management/${id}/edit`,
-      },
+
       userKyc: {
         root: `${ROOTS.DASHBOARD}/user-management/user-kyc`,
-        new: `${ROOTS.DASHBOARD}/user-management/user-kyc/new`,
+        // new: `${ROOTS.DASHBOARD}/user-management/user-kyc/new`,
         // details: (id) => `${ROOTS.DASHBOARD}/users/${id}`,
-        edit: (id) => `${ROOTS.DASHBOARD}/user-management/user-kyc/${id}/edit`,
+        // edit: (id) => `${ROOTS.DASHBOARD}/user-management/user-kyc/${id}/edit`,
       },
     },
   },
