@@ -39,7 +39,6 @@ export const paths = {
 
     userManagement: {
       root: `${ROOTS.DASHBOARD}/user-management`,
-
       userKyc: {
         root: `${ROOTS.DASHBOARD}/user-management/user-kyc`,
         // new: `${ROOTS.DASHBOARD}/user-management/user-kyc/new`,

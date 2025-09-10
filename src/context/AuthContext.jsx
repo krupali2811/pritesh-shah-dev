@@ -11,35 +11,30 @@ const initialState = {
   isInitialized: false,
   isAuthenticated: false,
   user: null,
-  loggedInUser: null,
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
     case "INIT": {
-      const { isAuthenticated, user, loggedInUser } = action.payload;
-      // const {accessToken, loggedInUser} = sessionStorage.getItem('user');
-      // const data = JSON.parse(sessionStorage.getItem("user"));
-      // const { isAuthenticated, user } =
-      //   data !== null && data !== "null"
-      //     ? { isAuthenticated: true, user: data.loggedInUser }
-      //     : action.payload;
-      // axiosInstance.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
+      const { isAuthenticated } = action.payload;
+
       return {
         ...state,
         isAuthenticated,
         isInitialized: true,
-        user,
-        loggedInUser,
       };
     }
 
     case "LOGIN": {
-      const { access, user } = action.payload.data;
-      localStorage.setItem("Token", JSON.stringify({ accessToken: access }));
-      sessionStorage.setItem("loggedInUser", JSON.stringify(user));
-      axiosInstance.defaults.headers.common.Authorization = `Bearer ${access}`;
-      return { ...state, isAuthenticated: true };
+      // const { access, user } = action.payload.data;
+      localStorage.setItem("isAuthenticated", true);
+      sessionStorage.setItem("user", JSON.stringify(action.payload.data));
+      // axiosInstance.defaults.headers.common.Authorization = `Bearer ${access}`;
+      return {
+        ...state,
+        isAuthenticated: true,
+        user: action.payload.data,
+      };
     }
 
     case "LOGOUT": {
@@ -49,16 +44,15 @@ const reducer = (state, action) => {
       return { ...state, isAuthenticated: false, user: null };
     }
 
-    case "SIGNUP": {
-      const { user, tokens } = action.payload.data;
-      axiosInstance.defaults.headers.common.Authorization = `Bearer ${tokens?.access}`;
-      return { ...state, isAuthenticated: true, user };
-    }
+    // case "SIGNUP": {
+    //   const { user, tokens } = action.payload.data;
+    //   axiosInstance.defaults.headers.common.Authorization = `Bearer ${tokens?.access}`;
+    //   return { ...state, isAuthenticated: true, user };
+    // }
 
     case "USER": {
-      const { user } = action.payload;
-      sessionStorage.setItem("user", JSON.stringify(user));
-      return { ...state, isAuthenticated: true, user };
+      sessionStorage.setItem("user", JSON.stringify(action.payload.data));
+      return { ...state, isAuthenticated: true, user: action.payload.data };
     }
 
     default:
@@ -71,7 +65,7 @@ const AuthContext = createContext({
   method: "JWT",
   login: () => {},
   logout: () => {},
-  signUp: () => {},
+  register: () => {},
   getUserData: () => {},
   verify2FA: () => {},
   verifyAccount: () => {},
@@ -85,64 +79,77 @@ export const AuthProvider = ({ children }) => {
   const login = async (data) => {
     try {
       const params = {
-        identifier: data?.email ? data?.email : data?.phone,
+        username: data?.email ? data?.email : data?.phone,
         password: data?.password,
       };
       const res = await axiosInstance.post(endpoints.auth.signIn, params);
-      const loginData = res.data;
-      const twoFA = loginData["2fa_required"];
-      const token = loginData.access;
-      const isVerified = loginData?.user?.verified_status;
-      if (twoFA) {
-        router.push(paths.auth.jwt.verify, {
-          query: { identifier: data.email || data.phone, flag: "login" },
-        });
-      } else if (!isVerified) {
-        toast.success("Account not verified");
-        router.push(paths.auth.jwt.verify, {
-          query: {
-            identifier: data.email || data.phone,
-            flag: "verifyAccount",
-          },
-        });
-      } else {
-        toast.success("Logged in successfully");
-        dispatch({ type: "LOGIN", payload: { data: loginData } });
-        getUserData(token);
-        router.push(paths.dashboard.root);
-      }
+      const loginData = res.data?.result;
+      console.log(loginData);
+      // const loginData = {
+      //   user: {
+      //     firstname: "chetan",
+      //     lastname: "aarya",
+      //     email: "chetan.aaryasoftex@gmail.com",
+      //     phone_number: "+917070717272",
+      //     address: "Vadodara",
+      //     role: "Admin",
+      //   },
+      //   access: "qasdzfgxchvjbgfrdtetdyfhujkl",
+      // };
+      // const twoFA = loginData["2fa_required"];
+      // const token = loginData.access;
+      // const isVerified = loginData?.user?.verified_status;
+      // if (twoFA) {
+      //   router.push(paths.auth.jwt.verify, {
+      //     query: { identifier: data.email || data.phone, flag: "login" },
+      //   });
+      // } else if (!isVerified) {
+      //   toast.success("Account not verified");
+      //   router.push(paths.auth.jwt.verify, {
+      //     query: {
+      //       identifier: data.email || data.phone,
+      //       flag: "verifyAccount",
+      //     },
+      //   });
+      // } else {
+      toast.success("Logged in successfully");
+      dispatch({
+        type: "LOGIN",
+        payload: {
+          data: loginData,
+        },
+      });
+      // getUserData();
+      router.push(paths.dashboard.root);
+      // }
     } catch (error) {
       toast.error(error?.message || "Error while logged in user");
       console.log(error.message);
     }
   };
 
-  const signUp = async (data) => {
+  const register = async (data) => {
     try {
-      const params = {
-        identifier: data?.email ? data?.email : data?.phone,
-        password: data?.password,
-        confirm_password: data?.confirm_password,
-        ...(data?.referral_code && { referral_code: data.referral_code }),
-      };
+      const formData = new FormData();
 
-      const res = await axiosInstance.post(endpoints.auth.signUp, params);
-      const userData = res?.data;
-      const isVerified = userData?.user?.verified_status;
-      if (!isVerified) {
-        toast.success(userData?.message || "Registered successfully");
-        router.push(paths.auth.jwt.verify, {
-          query: {
-            identifier: data.email || data.phone,
-            flag: "verifyAccount",
-          },
-        });
-        dispatch({ type: "SIGNUP", payload: { data: userData } });
-      } else {
-        toast.success("Registered successfully");
-        dispatch({ type: "SIGNUP", payload: { data: userData } });
-        router.push(paths.auth.jwt.signIn);
+      // Append text fields
+      formData.append("firstname", data.firstName);
+      formData.append("lastname", data.lastName);
+      formData.append("email", data.email);
+      formData.append("phone_number", data.phone);
+      formData.append("address", data.address);
+
+      // Append files (from RHF, FileUploadBox stores as array)
+      if (data.aadhaar?.[0]) {
+        formData.append("aadhar_card", data.aadhaar[0]);
       }
+      if (data.pan?.[0]) {
+        formData.append("pan_card", data.pan[0]);
+      }
+
+      await axiosInstance.post(endpoints.auth.register, formData);
+      toast.success("Registered successfully");
+      router.push(paths.auth.jwt.signIn);
     } catch (error) {
       // toast.error(error?.message || "Error while register user");
       if (error?.errors) {
@@ -167,18 +174,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const getUserData = async (data) => {
-    const token =
-      JSON.parse(localStorage.getItem("Token"))?.accessToken || data;
+  const getUserData = async () => {
     try {
-      const res = await axiosInstance.get(endpoints.auth.me, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axiosInstance.get(endpoints.auth.me);
       dispatch({
         type: "USER",
-        payload: { user: res?.data },
+        payload: { user: res?.data?.result },
       });
     } catch (error) {
       console.error("Failed to fetch user data", error);
@@ -192,7 +193,7 @@ export const AuthProvider = ({ children }) => {
       const token = loginData.access;
       toast.success("Logged in successfully");
       dispatch({ type: "LOGIN", payload: { data: loginData } });
-      getUserData(token);
+      // getUserData(token);
       router.push(paths.dashboard.root);
     } catch (error) {
       toast.error(error?.message || "Error while logged in user");
@@ -235,20 +236,17 @@ export const AuthProvider = ({ children }) => {
   // }, []);
 
   useEffect(() => {
-    const token = JSON.parse(localStorage.getItem("Token"));
-    const user = JSON.parse(sessionStorage.getItem("user"));
-    const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
-    if (token) {
-      getUserData(token?.accessToken);
+    const isAuthenticated = JSON.parse(localStorage.getItem("isAuthenticated"));
+    if (isAuthenticated) {
+      getUserData();
       dispatch({
         type: "INIT",
-        payload: { isAuthenticated: true, user, loggedInUser },
+        payload: { isAuthenticated: true },
       });
-      axiosInstance.defaults.headers.common.Authorization = `Bearer ${token?.accessToken}`;
     } else {
       dispatch({
         type: "INIT",
-        payload: { isAuthenticated: false, user: null, loggedInUser: null },
+        payload: { isAuthenticated: false, user: null },
       });
     }
   }, []);
@@ -267,7 +265,7 @@ export const AuthProvider = ({ children }) => {
         // setUser,
         login,
         logout,
-        signUp,
+        register,
         getUserData,
         verify2FA,
         verifyAccount,

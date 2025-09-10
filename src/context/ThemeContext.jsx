@@ -7,14 +7,7 @@ const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
   const savedTheme = localStorage.getItem("theme") || "dark";
-  const savedRiseFallColor = JSON.parse(localStorage.getItem("riseFallColor"));
-  const savedTradingInterface =
-    localStorage.getItem("tradingInterface") || "standard";
   const [theme, setTheme] = useState(savedTheme);
-  const [riseFallColor, setRiseFallColor] = useState(savedRiseFallColor);
-  const [tradingInterface, setTradingInterface] = useState(
-    savedTradingInterface
-  );
 
   const router = useRouter();
   const headerRef = useRef(null);
@@ -42,37 +35,7 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  useEffect(() => {
-    if (riseFallColor) {
-      localStorage.setItem("riseFallColor", JSON.stringify(riseFallColor));
-    } else {
-      localStorage.setItem(
-        "riseFallColor",
-        JSON.stringify({
-          title: "Green_Up",
-          up: "#12b76a",
-          down: "#FF4761",
-          candleUp: "#2B6B2B",
-          candleDown: "#dc3545",
-        })
-      );
-      setRiseFallColor({
-        title: "Green_Up",
-        up: "#12b76a",
-        down: "#FF4761",
-        candleUp: "#2B6B2B",
-        candleDown: "#dc3545",
-      });
-    }
-  }, [riseFallColor]);
 
-  useEffect(() => {
-    if (tradingInterface) {
-      localStorage.setItem("tradingInterface", tradingInterface);
-    } else {
-      localStorage.setItem("tradingInterface", "standard");
-    }
-  }, [tradingInterface]);
 
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === "dark" ? "light" : "dark"));
@@ -86,10 +49,6 @@ export const ThemeProvider = ({ children }) => {
         headerHeight,
         setHeaderHeight,
         headerRef,
-        riseFallColor,
-        setRiseFallColor,
-        tradingInterface,
-        setTradingInterface,
       }}
     >
       {children}

@@ -2,196 +2,57 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TbEye, TbEyeClosed } from "react-icons/tb";
-import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-// import IntlTelInput from "intl-tel-input/react";
-import { toast } from "react-toastify";
 
 import useAuth from "../../hooks/useAuth";
 import { useBoolean } from "../../hooks/use-boolean";
-// import PhoneInput from "../../components/phone-input";
 import { paths } from "../../routes/paths";
-import useTheme from "../../hooks/useTheme";
-// import axiosInstance, { endpoints } from "../../utils/axios";
-import { useRouter } from "../../routes/hooks/use-router";
-import { useCloseAllModals } from "../../hooks/use-close-modals";
 
 const Login = () => {
-  const { headerHeight, headerRef } = useTheme();
-  const router = useRouter();
-
-  const closeAllModals = useCloseAllModals();
-
   const showPasswordEmail = useBoolean();
-  const showPasswordPhone = useBoolean();
-  const stayLoggedIn = useBoolean();
-  const popoverVisible = useBoolean();
 
-  // Telegram
-  const otpStatus = useBoolean();
-  const verifyOtpStatus = useBoolean();
-  const [phone, setPhone] = useState(null);
-  const [params, setParams] = useState({
-    phone_number: "",
-    phone_code_hash: "",
-    user_id: "",
+  const { login } = useAuth();
+
+  const loginSchema = z.object({
+    email: z
+      .string()
+      .nonempty("Email is required") // ✅ makes field required
+      .email("Invalid email address"),
+
+    password: z
+      .string()
+      .min(6, "Password must be at least 6 characters long")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/[0-9]/, "Password must contain at least one number")
+      .regex(
+        /[@$!%*?&#]/,
+        "Password must contain at least one special character"
+      ),
   });
-  const [country, setCountry] = useState("us");
-
-  const { login, getUserData, dispatch, isAuthenticated } = useAuth();
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
-
-  const loginSchema = z
-    .object({
-      email: z
-        .string()
-        .email("Invalid email address")
-        .optional()
-        .or(z.literal("")), // Allows empty string
-
-      phone: z
-        .string()
-        .regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number format")
-        .optional()
-        .or(z.literal("")), // Allows empty string
-
-      password: z
-        .string()
-        .min(6, "Password must be at least 6 characters long"),
-    })
-    .refine((data) => data.email || data.phone, {
-      message: "Either email or phone number is required",
-      path: ["email"], // Show error on email
-    })
-    .refine((data) => data.email || data.phone, {
-      message: "Either email or phone number is required",
-      path: ["phone"], // Show error on phone
-    });
 
   const defaultValues = {
     email: "",
     password: "",
-    phone: "",
   };
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setValue,
-    watch,
   } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues,
   });
 
-  // const onSubmit = async (data) => {
-  //   try {
-  //     await login(data);
-  //   } catch (error) {
-  //     console.log(error);
-  //     alert("Invalid credentials");
-  //   }
-  // };
-  
-  const onSubmit = (data) => {
-    console.log("Form submitted:", data);
-    toast.success("Login Successful!");
-
-    // simulate user being authenticated (so AuthGuard won't kick you back)
-    dispatch({
-      type: "LOGIN",
-      payload: { data: { access: "dummyToken", user: { email: data.email } } },
-    });
-
-    router.push(paths.dashboard.root);
+  const onSubmit = async (data) => {
+    try {
+      await login(data);
+    } catch (error) {
+      console.log(error);
+      alert("Invalid credentials");
+    }
   };
-
-
-  useEffect(() => {
-    const getIp = async () => {
-      try {
-        const resp = await fetch("https://api.country.is/");
-        const data = await resp.json();
-        setCountry(data?.country?.toLowerCase()); // Ensure lowercase country code
-      } catch (error) {
-        console.error("Error fetching IP:", error);
-      }
-    };
-
-    getIp();
-  }, []);
-
-  // const handleSendOtp = async () => {
-  //   otpStatus.onTrue();
-  //   try {
-  //     if (!phone) {
-  //       toast.error("Please enter a valid phone number");
-  //       otpStatus.onFalse();
-  //       return;
-  //     }
-  //     const response = await axiosInstance.post(endpoints.auth.telegram, {
-  //       phone_number: phone,
-  //     });
-  //     const data = response.data?.data;
-  //     toast.success(response.data?.message);
-  //     if (response.data.status === 200) {
-  //       otpStatus.onFalse();
-  //       setParams({
-  //         phone_number: data?.phone_number,
-  //         phone_code_hash: data?.phone_code_hash,
-  //         user_id: data?.user_id,
-  //       });
-  //     }
-  //   } catch (error) {
-  //     toast.error(error.message);
-  //     otpStatus.onFalse();
-  //     console.error(error);
-  //   }
-  // };
-
-  // const handleVerifyOtp = async (code) => {
-  //   verifyOtpStatus.onTrue();
-  //   if (!code) {
-  //     toast.error("Please enter a valid OTP");
-  //     verifyOtpStatus.onFalse();
-  //     return;
-  //   }
-  //   try {
-  //     const response = await axiosInstance.post(endpoints.auth.telegramVerify, {
-  //       phone_number: params.phone_number,
-  //       code: code,
-  //       phone_code_hash: params.phone_code_hash,
-  //       user_id: params.user_id,
-  //     });
-  //     const data = response.data;
-  //     const token = data.access;
-  //     toast.success(data?.message);
-  //     if (data.status === 200) {
-  //       await dispatch({ type: "LOGIN", payload: { data: data } });
-  //       console.log(token);
-  //       getUserData(token);
-  //       closeAllModals();
-  //       router.push(paths.dashboard.root);
-  //       verifyOtpStatus.onFalse();
-  //     }
-  //   } catch (error) {
-  //     toast.error(error.message);
-  //     verifyOtpStatus.onFalse();
-  //     console.error(error);
-  //   }
-  // };
-
-  useEffect(() => {
-    setValue("password", password);
-  }, [password, setValue]);
-
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     router.replace(paths.dashboard.root); // use replace to avoid going back to landing
-  //   }
-  // }, [isAuthenticated, router]);
 
   return (
     <>
@@ -220,21 +81,18 @@ const Login = () => {
             <p className="form-head mb-40 text-center">
               Please enter your details to login
             </p>
-            <div className="mb-30">
+            <div className="mb-20">
               <label className="form-label" style={{ textTransform: "none" }}>
                 Email or Username
               </label>
               <input
-                name="email"
-                type="email"
+                {...register("email")}
+                type="text"
                 className="form-control"
-                placeholder="Enter your email or username"
-                required
-                value={watch("email")}
-                onChange={(e) => setValue("email", e.target.value)}
+                placeholder="Enter your email"
               />
               {errors.email && (
-                <p className="error small mt-1">{errors.email.message}</p>
+                <p className="error mt-1">{errors.email.message}</p>
               )}
             </div>
 
@@ -242,12 +100,10 @@ const Login = () => {
               <label className="form-label">Password</label>
               <div className="password-field position-relative">
                 <input
-                  name="password"
+                  {...register("password")}
                   className="form-control"
                   type={showPasswordEmail.value ? "text" : "password"}
                   placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <span
                   className="cursor-pointer toggleEye"
@@ -289,10 +145,10 @@ const Login = () => {
 
             <div>
               <p className="text-center f-16 ff-regular">
-                Don't have an account?
+                Don&apos;t have an account?
                 <Link
                   to={paths.auth.jwt.register}
-                  className="btn btn-link ff-bold text-white"
+                  className="btn btn-link ff-bold"
                 >
                   Register Now
                 </Link>

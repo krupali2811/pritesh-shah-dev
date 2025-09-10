@@ -204,15 +204,3 @@ export const maskEmail = (email) => {
   return `${name.slice(0, 3)}*****@${domain}`;
 };
 
-// ----------------------------------------------------------------------
-export const getColorCode = (riseFallColor, direction) => {
-  if (riseFallColor.title === "Green_Up") {
-    return direction === "UP" ? riseFallColor.up : riseFallColor.down;
-  } else if (riseFallColor.title === "Red_Up") {
-    return direction === "UP" ? riseFallColor.up : riseFallColor.down;
-  } else if (riseFallColor.title === "Blue_Down") {
-    return direction === "UP" ? riseFallColor.up : riseFallColor.down;
-  } else {
-    return ""; // fallback
-  }
-};
