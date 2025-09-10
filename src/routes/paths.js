@@ -26,7 +26,6 @@ export const paths = {
   // DASHBOARD
   dashboard: {
     root: ROOTS.DASHBOARD,
-
     overview: `${ROOTS.DASHBOARD}/overview`,
     clientList: `${ROOTS.DASHBOARD}/clients`,
     kycManagement: `${ROOTS.DASHBOARD}/kyc-management`,
@@ -38,7 +37,6 @@ export const paths = {
 
     userManagement: {
       root: `${ROOTS.DASHBOARD}/user-management`,
-
       userKyc: {
         root: `${ROOTS.DASHBOARD}/user-management/user-kyc`,
         // new: `${ROOTS.DASHBOARD}/user-management/user-kyc/new`,

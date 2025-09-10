@@ -5,7 +5,10 @@ import { CONFIG } from "./config-global";
 
 // ----------------------------------------------------------------------
 
-const axiosInstance = axios.create({ baseURL: CONFIG.site.serverUrl });
+const axiosInstance = axios.create({
+  baseURL: CONFIG.site.serverUrl,
+  withCredentials: true,
+});
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) =>
@@ -39,9 +42,9 @@ export const fetcher = async (args, logout) => {
 
 export const endpoints = {
   auth: {
-    me: "/get-user-data/",
-    signIn: "/login/",
-    signUp: "/signup/",
+    me: "/auth/me",
+    signIn: "/auth/sign-in",
+    register: "/users/add",
     enable2FA: "/enable-2fa/",
     verifyEnable2FA: "/verify-enable-2fa/",
     verifyDisable2FA: "/verify-disable-2fa/",
@@ -91,51 +94,4 @@ export const endpoints = {
     // delete: (id) => `/adminpanel/delete-user/${id}/`,
     // search: '/CarRecords/search',
   },
-  withdrawRequest: {
-    list: "/adminpanel/approve-transfers/",
-    approveRequest: (id) => `/adminpanel/approve-transfers/${id}/`,
-    rejectRequest: (id) => `/adminpanel/approve-transfers/${id}/`,
-  },
-  wallet: {
-    getWalletBalance: "/wallet/default-get-wallet-balance/",
-    coinBalance: "/wallet/get-coin-balance/",
-    // getWalletBalance: "/wallet/apigetwalletbalance/",
-    addWallet: "/wallet",
-    updateWallet: "/wallet",
-    deleteWallet: "/wallet",
-    internalTransfer: "/wallet/internal-transfer/",
-    universalTransfer: "/wallet/universal-transfer/",
-    transactions: "/wallet/get-universal-transfer/",
-    coinInfo: "/wallet/get-coin-info/",
-    getMasterDepositAddress: "/wallet/get-master-deposit-address/",
-    getSubDepositAddress: "/wallet/get-sub-deposit-address/",
-    sendWithdrawOtp: "/wallet/withdraw-sendotp/",
-    createWithdraw: "/wallet/withdraw/",
-    createWithdrawUser: "/wallet/withdraw-transfer/",
-    cancelAdminWithdrawal: "/wallet/admin-cancelwithdraw/",
-    cancelUserWithdrawal: (id) => `/wallet/user-cancelwithdraw/${id}/`,
-    recentWithdrawals: "/wallet/withdrawal-records/",
-    recentDeposits: "/wallet/deposit-records/",
-    marginMode: "/wallet/set-margin-mode/",
-    leverage: "/wallet/set-leverage/",
-  },
-  trade: {
-    placeOrder: "/trade/place-order/",
-    cancelOrder: "/trade/cancel-order/",
-    cancelAllOrders: "/trade/cancel-all-order/",
-    amendOrder: "/trade/amend-order/",
-    recentOrders: "/trade/get-public-trade/",
-    historicalKline: "/trade/historical-kline/",
-    currentOrders: "/trade/get-order-list/",
-    orderHistory: "/trade/order-history/",
-    tradeHistory: "/trade/trade-history/",
-    subscriptionRedemption: "/trade/subscription-Redemption",
-  },
-  fundingHistory: {
-    deposit: "/adminpanel/max-wallet-user/",
-    orders: "/adminpanel/max-order-user/",
-  },
-  markets: "/trade/symbol-list/",
-  referral: "/referred-users/",
-  docType: "/doc-type/",
 };

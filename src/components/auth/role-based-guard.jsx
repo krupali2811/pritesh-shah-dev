@@ -12,7 +12,7 @@ export function RoleBasedGuard({
   currentPermission,
 }) {
   const { user } = useAuth();
-  const acceptPermissions = user?.role;
+  const acceptPermissions = user?.role?.role_name;
 
   if (
     typeof acceptPermissions !== "undefined" &&
