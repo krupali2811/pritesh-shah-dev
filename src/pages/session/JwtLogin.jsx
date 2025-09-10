@@ -5,15 +5,15 @@ import { TbEye, TbEyeClosed } from "react-icons/tb";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import IntlTelInput from "intl-tel-input/react";
+// import IntlTelInput from "intl-tel-input/react";
 import { toast } from "react-toastify";
 
 import useAuth from "../../hooks/useAuth";
 import { useBoolean } from "../../hooks/use-boolean";
-import PhoneInput from "../../components/phone-input";
+// import PhoneInput from "../../components/phone-input";
 import { paths } from "../../routes/paths";
 import useTheme from "../../hooks/useTheme";
-import axiosInstance, { endpoints } from "../../utils/axios";
+// import axiosInstance, { endpoints } from "../../utils/axios";
 import { useRouter } from "../../routes/hooks/use-router";
 import { useCloseAllModals } from "../../hooks/use-close-modals";
 

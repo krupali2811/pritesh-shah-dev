@@ -12,6 +12,10 @@ import { RoleBasedGuard } from "../../components/auth/role-based-guard.jsx";
 
 const Home = Loadable(lazy(() => import("../../pages/dashboard/Home")));
 
+const KYCManagement = Loadable(
+  lazy(() => import("../../pages/dashboard/KYCManagement.jsx"))
+);
+
 //Users
 const Users = Loadable(
   lazy(() => import("../../pages/dashboard/users/UserList.jsx"))
@@ -50,6 +54,8 @@ const RoleBasedRoutes = () => {
       ),
       children: [
         { element: <Home />, index: true },
+
+        { path: "kyc-management", element: <KYCManagement /> },
 
         {
           path: "users",

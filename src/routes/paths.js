@@ -27,6 +27,7 @@ export const paths = {
   dashboard: {
     root: ROOTS.DASHBOARD,
 
+    
     overview: `${ROOTS.DASHBOARD}/overview`,
     clientList: `${ROOTS.DASHBOARD}/clients`,
     kycManagement: `${ROOTS.DASHBOARD}/kyc-management`,

@@ -1,10 +1,9 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useEffect, useState } from "react";
-import { TbEye, TbEyeClosed } from "react-icons/tb";
+// import { TbEye, TbEyeClosed } from "react-icons/tb";
 import { toast } from "react-toastify";
 
 import useAuth from "../../hooks/useAuth";
@@ -12,7 +11,7 @@ import { useBoolean } from "../../hooks/use-boolean";
 import { useRouter } from "../../routes/hooks/use-router";
 import { paths } from "../../routes/paths";
 import useTheme from "../../hooks/useTheme";
-import PhoneInput from "../../components/phone-input";
+// import PhoneInput from "../../components/phone-input";
 import axiosInstance, { endpoints } from "../../utils/axios";
 
 const ForgotPassword = () => {
@@ -173,260 +172,37 @@ const ForgotPassword = () => {
       <Helmet>
         <title>Pritesh Shah | Investment Advisor</title>
       </Helmet>
-      <main className="main vh-100 login-main">
-        <div
-          className="main-content w-100 ms-0 py-5"
-          style={{ minHeight: `calc((100vh - 20px) - ${headerHeight}px)` }}
-        >
-          <div className="form-login mx-auto">
-            <div className="container">
-              <div className="row g-5">
-                <div className="col-lg-5 order-2 order-lg-1">
-                  <h1 className="form-title mb-3 mb-md-5">Forgot Password</h1>
-                  <div id="tabs" className="login-tab">
-                    <div className="tab-content" id="loginTabContent">
-                      <div
-                        className="tab-pane fade show active"
-                        id="Email-tab-pane"
-                        role="tabpanel"
-                        aria-labelledby="Email-tab"
-                        tabIndex="0"
-                      >
-                        <form id="msform" onSubmit={handleSubmit(onSubmit)}>
-                          {formStep.value === 1 && (
-                            <>
-                              <div className="mb-20">
-                                <div className="input-group">
-                                  <span className="input-group-text">
-                                    <i className="bi bi-envelope-fill"></i>
-                                  </span>
-                                  <input
-                                    {...register("email")}
-                                    className="form-control"
-                                    type="email"
-                                    placeholder="name@example.com"
-                                  />
-                                  <span
-                                    className="input-group-text"
-                                    onClick={() => setValue("email", "")}
-                                  >
-                                    <i className="bi bi-x-circle-fill clear"></i>
-                                  </span>
-                                </div>
-                                {errors.email && (
-                                  <p className="error small mt-1">
-                                    {errors.email.message}
-                                  </p>
-                                )}
-                              </div>
+      <main className="d-flex align-items-center justify-content-center vh-100 bg-main">
+        <div className="form-forgot-password w-100 m-auto">
+          <form
+            className="card rounded-24"
+            id="msform"
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            <h1 className="form-title ff-bold text-white text-center mb-50">
+              Forgot Password
+            </h1>
 
-                              <button
-                                type="submit"
-                                className="btn btn-primary btn-login w-100 mb-3"
-                                disabled={otpStatus.value}
-                              >
-                                {otpStatus.value ? "Sending..." : "Send OTP"}
-                              </button>
-                            </>
-                          )}
-                          {formStep.value === 2 && (
-                            <>
-                              <div className="mb-20">
-                                <div className="input-group password-field">
-                                  <span className="input-group-text">
-                                    <i className="bi bi-lock-fill"></i>
-                                  </span>
-                                  <input
-                                    {...register("password")}
-                                    className="form-control"
-                                    type={
-                                      showPasswordEmail.value
-                                        ? "text"
-                                        : "password"
-                                    }
-                                    placeholder="Enter New Password"
-                                  />
-                                  <span
-                                    className="input-group-text"
-                                    onClick={showPasswordEmail.onToggle}
-                                  >
-                                    {showPasswordEmail.value ? (
-                                      <TbEye />
-                                    ) : (
-                                      <TbEyeClosed />
-                                    )}
-                                  </span>
-                                </div>
-                                {errors.password && (
-                                  <p className="error small mt-1">
-                                    {errors.password.message}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="mb-20">
-                                <div className="input-group">
-                                  <span className="input-group-text">
-                                    <i className="bi bi-key-fill"></i>
-                                  </span>
-                                  <input
-                                    {...register("code")}
-                                    className="form-control"
-                                    type="text"
-                                    placeholder="Enter verification code"
-                                  />
-                                  <span className="input-group-text">
-                                    <button
-                                      type="button"
-                                      className="btn btn-link"
-                                      onClick={handleSendOtp}
-                                      disabled={resendOtp.value}
-                                    >
-                                      resend
-                                    </button>
-                                  </span>
-                                </div>
-                                {errors.code && (
-                                  <p className="error small mt-1">
-                                    {errors.code.message}
-                                  </p>
-                                )}
-                              </div>
-
-                              <button
-                                type="submit"
-                                className="btn btn-primary btn-login w-100 mb-3"
-                                disabled={isSubmitting}
-                              >
-                                {isSubmitting ? "Verifying..." : "Verify"}
-                              </button>
-                            </>
-                          )}
-                        </form>
-                      </div>
-
-                      <div
-                        className="tab-pane fade"
-                        id="Mobile-tab-pane"
-                        role="tabpanel"
-                        aria-labelledby="Mobile-tab"
-                        tabIndex="0"
-                      >
-                        <form
-                          className=""
-                          id="msform"
-                          onSubmit={handleSubmit(onSubmit)}
-                        >
-                          {formStep.value === 1 && (
-                            <>
-                              <PhoneInput
-                                name="phone"
-                                register={register}
-                                setValue={setValue}
-                                errors={errors}
-                                phoneNumber={phoneNumber}
-                                setPhoneNumber={setPhoneNumber}
-                              />
-                              {errors.phone && (
-                                <p className="error small mt-1">
-                                  {errors.phone.message}
-                                </p>
-                              )}
-                              <button
-                                type="submit"
-                                className="btn btn-primary btn-login w-100 mb-3"
-                                onClick={handleSendOtp}
-                                disabled={otpStatus.value}
-                              >
-                                {otpStatus.value ? "Sending..." : "Send OTP"}
-                              </button>
-                            </>
-                          )}
-                          {formStep.value === 2 && (
-                            <>
-                              <div className="mb-20">
-                                <div className="input-group password-field">
-                                  <span className="input-group-text">
-                                    <i className="bi bi-lock-fill"></i>
-                                  </span>
-                                  <input
-                                    name="password"
-                                    className="form-control"
-                                    type={
-                                      showPasswordPhone.value
-                                        ? "text"
-                                        : "password"
-                                    }
-                                    placeholder="Password"
-                                    onChange={(e) =>
-                                      setValue("password", e.target.value)
-                                    }
-                                  />
-                                  <span
-                                    className="input-group-text"
-                                    onClick={showPasswordPhone.onToggle}
-                                  >
-                                    {showPasswordPhone.value ? (
-                                      <TbEye />
-                                    ) : (
-                                      <TbEyeClosed />
-                                    )}
-                                  </span>
-                                </div>
-                                {errors.password && (
-                                  <p className="error small mt-1">
-                                    {errors.password.message}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="mb-20">
-                                <div className="input-group">
-                                  <span className="input-group-text">
-                                    <i className="bi bi-key-fill"></i>
-                                  </span>
-                                  <input
-                                    name="code"
-                                    className="form-control"
-                                    type="text"
-                                    placeholder="Enter verification code"
-                                    onChange={(e) =>
-                                      setValue("code", e.target.value)
-                                    }
-                                  />
-                                  <span className="input-group-text">
-                                    <button
-                                      type="button"
-                                      className="btn btn-link"
-                                      onClick={handleSendOtp}
-                                      disabled={resendOtp.value}
-                                    >
-                                      resend
-                                    </button>
-                                  </span>
-                                </div>
-                                {errors.code && (
-                                  <p className="error small mt-1">
-                                    {errors.code.message}
-                                  </p>
-                                )}
-                              </div>
-
-                              <button
-                                type="submit"
-                                className="btn btn-primary btn-login w-100 mb-3"
-                                disabled={isSubmitting}
-                              >
-                                {isSubmitting ? "Verifying..." : "Verify"}
-                              </button>
-                            </>
-                          )}
-                        </form>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div className="mb-20">
+              <input
+                {...register("email")}
+                className="form-control"
+                type="email"
+                placeholder="name@example.com"
+              />
+              {errors.email && (
+                <p className="error small mt-1">{errors.email.message}</p>
+              )}
             </div>
-          </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary btn-login w-100"
+              disabled={otpStatus.value}
+            >
+              {otpStatus.value ? "Sending..." : "Send OTP"}
+            </button>
+          </form>
         </div>
       </main>
     </>

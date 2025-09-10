@@ -39,7 +39,7 @@ const DashboardLayout = () => {
 
       <div
         className={`main-content ${isCollapsed ? "collapsed" : ""}`}
-        style={{ minHeight: `calc((100vh - 20px) - ${headerHeight}px)` }}
+        // style={{ minHeight: `calc((100vh - 20px) - ${headerHeight}px)` }}
       >
         <Header toggleSidebar={toggleSidebar} />
         <Outlet />

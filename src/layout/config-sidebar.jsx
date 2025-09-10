@@ -7,15 +7,19 @@ const RoleBasedNavData = () => {
   const { user } = useAuth();
 
   const navData = [
-    { title: "Profile", path: paths.dashboard.root || "/" },
-    { title: "Overview", path: paths.dashboard.root || "/" },
-    { title: "Client List", path: paths.dashboard.clientList || "/" },
-    { title: "KYC Management", path: paths.dashboard.kyc || "/" },
-    { title: "Portfolios", path: paths.dashboard.portfolios || "/" },
-    { title: "Analytics", path: paths.dashboard.analytics || "/" },
-    { title: "Reports", path: paths.dashboard.reports || "/" },
-    { title: "Messages", path: paths.dashboard.messages || "/" },
-    { title: "Compliance", path: paths.dashboard.compliance || "/" },
+    { title: "Dashboard", path: paths.dashboard.root || "/" },
+    { title: "KYC Management", path: paths.dashboard.kycManagement || "/" },
+    { title: "Portfolio Summary", path: paths.dashboard.overview || "/" },
+    { title: "Investments", path: paths.dashboard.investments || "/" },
+    {
+      title: "Performance Analytics",
+      path: paths.dashboard.performance_analytics || "/",
+    },
+    { title: "Financial Goals", path: paths.dashboard.financial_goals || "/" },
+    { title: "Notifications", path: paths.dashboard.notifications || "/" },
+    { title: "Adviser Contact", path: paths.dashboard.advisor_contact || "/" },
+    // { title: "Messages", path: paths.dashboard.messages || "/" },
+    // { title: "Compliance", path: paths.dashboard.compliance || "/" },
   ];
 
   return navData;

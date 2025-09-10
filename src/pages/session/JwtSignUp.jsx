@@ -194,7 +194,7 @@ const SignUp = () => {
       <main className="main vh-100 login-main">
         <div
           className="main-content w-100 ms-0 py-5"
-          style={{ minHeight: `calc((100vh - 20px) - ${headerHeight}px)` }}
+          // style={{ minHeight: `calc((100vh - 20px) - ${headerHeight}px)` }}
         >
           <div className="form-login mx-auto">
             <div className="container">
