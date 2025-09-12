@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+
 import useAuth from "../../hooks/useAuth";
 import useTheme from "../../hooks/useTheme";
 
@@ -6,6 +7,7 @@ const Header = ({ toggleSidebar, isCollapsed }) => {
   const { user, logout } = useAuth();
   const { headerRef } = useTheme();
 
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -30,14 +32,43 @@ const Header = ({ toggleSidebar, isCollapsed }) => {
     };
   }, [openDropdown]);
 
+  // Fullscreen toggle handler
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  //Track fullscreen change (if user presses ESC, etc.)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
   return (
     <header ref={headerRef} className="header-wrapper sticky-top">
       <nav className="navbar navbar-top d-flex justify-content-end gap-2 pe-5">
         <ul className="navbar-nav flex-row align-items-center">
           {/* Fullscreen Button */}
           <li className="nav-item">
-            <button className="icon-btn">
-              <img src="../assets/images/maximize.svg" alt="Maximize" />
+            <button className="icon-btn" onClick={toggleFullscreen}>
+              <img
+                src={
+                  isFullscreen
+                    ? "../assets/images/minimize.svg"
+                    : "../assets/images/maximize.svg"
+                }
+                alt={isFullscreen ? "Minimize" : "Maximize"}
+              />
             </button>
           </li>
 

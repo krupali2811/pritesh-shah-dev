@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 
 import { CONFIG } from "../../utils/config-global";
@@ -74,6 +75,8 @@ export default function KYCManagement() {
   const referralCode = user?.referral_code;
   const referralLink = `${window.location.origin}/auth/sign-up?ref=${referralCode}`;
 
+  const [selectedUser, setSelectedUser] = useState(null);
+
   return (
     <>
       <Helmet>
@@ -97,7 +100,9 @@ export default function KYCManagement() {
         {/* Table Section */}
         <div className="table-card p-0">
           <div className="table-card-header d-flex justify-content-between align-items-center">
-            <h5 className="f-20 ff-semibold">KYC Management</h5>
+            <h5 className="header-left-border f-20 ff-semibold">
+              KYC Management
+            </h5>
             <a href="#" className="text-primary-head">
               View All &gt;
             </a>
@@ -121,12 +126,8 @@ export default function KYCManagement() {
                     <td>{user.email}</td>
                     <td>{user.status}</td>
                     <td>
-                      <button className="btn btn-view me-3">
-                        View
-                      </button>
-                      <button className="btn btn-remove">
-                        Remove
-                      </button>
+                      <button className="btn btn-view me-3">View</button>
+                      <button className="btn btn-remove">Remove</button>
                     </td>
                   </tr>
                 ))}
